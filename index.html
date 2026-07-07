@@ -54,6 +54,18 @@
                 <span class="shutter-ico" aria-hidden="true"></span> Select photos
               </button>
               <p class="dz-fine">JPG · PNG · WEBP — processed entirely in your browser.<br/>Session self-destructs 15 minutes after your film is generated.</p>
+
+              <div class="music-widget" id="musicWidget">
+                <iframe
+                  id="spotifyEmbed"
+                  width="100%" height="152" frameborder="0"
+                  allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                  loading="lazy" title="Background music"></iframe>
+                <div class="music-picker">
+                  <input type="text" id="spotifyLinkInput" placeholder="Paste a Spotify track/playlist link…" />
+                  <button class="btn btn-ghost" id="spotifyLoadBtn" type="button">Load</button>
+                </div>
+              </div>
             </div>
           </div>
 

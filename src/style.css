@@ -133,6 +133,7 @@ body {
 }
 .vf-screen[data-aspect="9:16"] { aspect-ratio: 9 / 16; max-height: 74dvh; justify-self: center; }
 .vf-screen[data-aspect="1:1"]  { aspect-ratio: 1 / 1;  max-height: 74dvh; }
+.vf-screen:has(.dropzone:not([hidden])) { aspect-ratio: auto; min-height: min(700px, 90dvh); }
 #previewCanvas { width: 100%; height: 100%; object-fit: contain; display: block; }
 
 .vf-corners i {
@@ -164,6 +165,16 @@ body {
 .dropzone p { color: var(--muted); line-height: 1.6; margin: 0 0 20px; font-size: 0.95rem; font-weight: 500; }
 .dropzone p b { color: var(--terracotta); }
 .dz-fine { font-size: 0.72rem !important; margin-top: 18px !important; }
+.music-widget { margin-top: 18px; text-align: left; }
+.music-widget iframe { border-radius: 12px; display: block; }
+.music-picker { display: flex; gap: 8px; margin-top: 10px; }
+.music-picker input {
+  flex: 1; min-width: 0; font-family: var(--sans); font-size: 0.78rem;
+  border: 1px solid var(--line); border-radius: 999px; padding: 9px 14px;
+  background: var(--card); color: var(--ink);
+}
+.music-picker input::placeholder { color: var(--muted); }
+.music-picker .btn { padding: 9px 16px; }
 .dz-brackets i {
   position: absolute; width: 40px; height: 40px; border-radius: 3px;
   border: 2px dashed oklch(0.62 0.07 145 / 0.45);
@@ -395,7 +406,6 @@ input[type="range"] { width: 100%; accent-color: var(--sage); margin-top: 8px; }
   .scrub { order: 3; flex-basis: 100%; }
   .brand-tag { display: none; }
   .viewfinder::before, .viewfinder::after { width: 60px; }
-  .vf-screen:has(.dropzone:not([hidden])) { aspect-ratio: auto; min-height: 78dvh; }
   .dz-tulip { width: 100px; height: 100px; margin: 0 auto 18px; }
   .dropzone p { font-size: 0.88rem; }
 }

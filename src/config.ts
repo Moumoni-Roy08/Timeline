@@ -20,3 +20,7 @@ export const ASPECTS: Record<string, { w: number; h: number }> = {
 /** Photo limits */
 export const MIN_PHOTOS = 2;
 export const MAX_PHOTOS = 20;
+
+/** Default background music on the landing screen (Spotify embed).
+ *  Visitors can swap it for any Spotify track/playlist/album link. */
+export const DEFAULT_SPOTIFY_EMBED = "https://open.spotify.com/embed/playlist/37i9dQZF1DX4sWSpwq3LiO?utm_source=generator&theme=0";

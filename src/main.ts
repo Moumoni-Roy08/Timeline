@@ -2,7 +2,7 @@ import "./style.css";
 import { detectSubject, loadFaceModel } from "./face";
 import { TimelineRenderer, type Photo } from "./renderer";
 import { exportFilm, supportsMp4, type ExportHandle } from "./exporter";
-import { ASPECTS, GITHUB_REPO_URL, MAX_PHOTOS, MIN_PHOTOS, PURGE_MS, FPS } from "./config";
+import { ASPECTS, GITHUB_REPO_URL, DEFAULT_SPOTIFY_EMBED, MAX_PHOTOS, MIN_PHOTOS, PURGE_MS, FPS } from "./config";
 import { mountTulip } from "./tulip3d";
 
 /* ── element refs ─────────────────────────────────────────── */
@@ -44,6 +44,23 @@ const edClose = $("edClose");
 const downloadLink = $<HTMLAnchorElement>("downloadLink");
 
 ($("githubStar") as HTMLAnchorElement).href = GITHUB_REPO_URL;
+
+/* ── background music (Spotify embed, swappable) ─────────────── */
+const spotifyEmbed = $<HTMLIFrameElement>("spotifyEmbed");
+const spotifyLinkInput = $<HTMLInputElement>("spotifyLinkInput");
+spotifyEmbed.src = DEFAULT_SPOTIFY_EMBED;
+function loadSpotifyLink() {
+  const val = spotifyLinkInput.value.trim();
+  if (!val) return;
+  const m = val.match(/spotify\.com\/(?:intl-[a-z-]+\/)?(track|album|playlist|episode|show)\/([a-zA-Z0-9]+)/)
+    ?? val.match(/^spotify:(track|album|playlist|episode|show):([a-zA-Z0-9]+)$/);
+  if (!m) { toast("Not a Spotify link — paste a track, playlist, or album URL."); return; }
+  const [, type, id] = m;
+  spotifyEmbed.src = `https://open.spotify.com/embed/${type}/${id}?utm_source=generator&theme=0`;
+  spotifyLinkInput.value = "";
+}
+$("spotifyLoadBtn").addEventListener("click", loadSpotifyLink);
+spotifyLinkInput.addEventListener("keydown", (e) => { if (e.key === "Enter") loadSpotifyLink(); });
 
 /* ── state ────────────────────────────────────────────────── */
 let photos: Photo[] = [];
