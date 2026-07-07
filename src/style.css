@@ -408,6 +408,8 @@ input[type="range"] { width: 100%; accent-color: var(--sage); margin-top: 8px; }
   .viewfinder::before, .viewfinder::after { width: 60px; }
   .dz-tulip { width: 100px; height: 100px; margin: 0 auto 18px; }
   .dropzone p { font-size: 0.88rem; }
+  .music-widget iframe { height: 80px; }
+  .vf-screen:has(.dropzone:not([hidden])) { min-height: min(620px, 92dvh); }
 }
 @media (prefers-reduced-motion: reduce) {
   * { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
