@@ -395,6 +395,9 @@ input[type="range"] { width: 100%; accent-color: var(--sage); margin-top: 8px; }
   .scrub { order: 3; flex-basis: 100%; }
   .brand-tag { display: none; }
   .viewfinder::before, .viewfinder::after { width: 60px; }
+  .vf-screen:has(.dropzone:not([hidden])) { aspect-ratio: auto; min-height: 78dvh; }
+  .dz-tulip { width: 110px; height: 110px; }
+  .dropzone p { font-size: 0.88rem; }
 }
 @media (prefers-reduced-motion: reduce) {
   * { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
