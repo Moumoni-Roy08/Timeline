@@ -1,6 +1,6 @@
 /** ─── Edit me ─────────────────────────────────────────────── */
 /** Your repository. The "Star on GitHub" button points here.  */
-export const GITHUB_REPO_URL = "https://github.com/YOUR_USERNAME/timeline";
+export const GITHUB_REPO_URL = "https://github.com/Moumoni-Roy08/Timeline";
 
 /** Session lifetime: everything wipes this long after a film is generated
  *  (or after photos are loaded, if no film is ever generated). */
