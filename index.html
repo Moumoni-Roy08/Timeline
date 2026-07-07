@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Timeline — private timeline films from your photos</title>
+  <meta name="description" content="Turn 10–20 photos into a subject-anchored timeline film. Everything runs in your browser — nothing is uploaded, everything auto-clears in 15 minutes." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&family=Caveat:wght@500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><circle cx='16' cy='16' r='13' fill='none' stroke='%23FF4438' stroke-width='3'/><circle cx='16' cy='16' r='5' fill='%23FF4438'/></svg>" />
+</head>
+<body>
+  <div id="app">
+
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-lens" aria-hidden="true"></span>
+        <span class="brand-name">Time<b>line</b></span>
+        <span class="brand-tag">little timeline films ✿</span>
+      </div>
+      <div class="topbar-right">
+        <span class="privacy-chip" id="privacyChip" title="Photos never leave this device">
+          <span class="dot dot-green"></span> On-device · nothing uploaded
+        </span>
+        <a id="githubStar" class="gh-star" href="#" target="_blank" rel="noopener noreferrer">
+          <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path fill="currentColor" d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.75.75 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Z"/></svg>
+          Star on GitHub
+        </a>
+      </div>
+    </header>
+
+    <main class="stage">
+
+      <!-- VIEWFINDER -->
+      <section class="viewfinder" id="viewfinder" aria-label="Preview viewfinder">
+        <div class="vf-hud vf-hud-top">
+          <span class="hud-item hud-rec" id="hudRec"><span class="dot dot-red"></span>REC</span>
+          <span class="hud-item" id="hudRes">1920×1080 · 30&thinsp;FPS</span>
+          <span class="hud-item hud-timer" id="hudTime">00:00.0</span>
+        </div>
+
+        <div class="vf-screen" id="vfScreen">
+          <canvas id="previewCanvas" width="1920" height="1080"></canvas>
+
+          <!-- empty state / dropzone -->
+          <div class="dropzone" id="dropzone">
+            <div class="dz-brackets" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+            <div class="dz-inner">
+              <div class="dz-tulip" id="tulipLanding" aria-hidden="true"></div>
+              <h1>Load your timeline</h1>
+              <p>Drop <b>10–20 photos</b> of the same person, oldest first.<br/>Faces auto-lock to center — only the world around them changes.</p>
+              <button class="btn btn-primary" id="pickBtn" type="button">
+                <span class="shutter-ico" aria-hidden="true"></span> Select photos
+              </button>
+              <p class="dz-fine">JPG · PNG · WEBP — processed entirely in your browser.<br/>Session self-destructs 15 minutes after your film is generated.</p>
+            </div>
+          </div>
+
+          <!-- focus/processing overlay -->
+          <div class="af-overlay" id="afOverlay" hidden>
+            <div class="af-box" id="afBox"><i></i><i></i><i></i><i></i></div>
+            <div class="af-label" id="afLabel">AF · LOCKING SUBJECT 1/12</div>
+          </div>
+
+          <div class="vf-corners" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+        </div>
+
+        <div class="vf-hud vf-hud-bottom">
+          <span class="hud-item" id="hudCount">0 FRAMES</span>
+          <span class="hud-item hud-purge" id="hudPurge" hidden>
+            <svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path fill="currentColor" d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1Zm.75 3.5v3.19l2.28 2.28-1.06 1.06L7.25 8.31V4.5h1.5Z"/></svg>
+            AUTO-WIPE <span id="purgeTime">15:00</span>
+          </span>
+          <span class="hud-item" id="hudAspect">16:9</span>
+        </div>
+      </section>
+
+      <!-- TRANSPORT + SETTINGS -->
+      <section class="deck" id="deck" hidden>
+        <div class="deck-tulip" id="tulipEditor" aria-hidden="true"></div>
+        <div class="transport">
+          <button class="btn btn-icon" id="playBtn" type="button" aria-label="Play or pause preview">
+            <svg id="playIco" viewBox="0 0 16 16" width="16" height="16"><path fill="currentColor" d="M4 2.5v11l9-5.5-9-5.5Z"/></svg>
+          </button>
+          <div class="scrub" id="scrub" role="slider" aria-label="Timeline position" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" tabindex="0">
+            <div class="scrub-fill" id="scrubFill"></div>
+            <div class="scrub-ticks" id="scrubTicks"></div>
+          </div>
+          <button class="btn btn-rec" id="exportBtn" type="button">
+            <span class="dot dot-red" aria-hidden="true"></span> Export MP4
+          </button>
+        </div>
+
+        <div class="settings">
+          <fieldset class="setting">
+            <legend>Frame</legend>
+            <div class="seg" role="group" aria-label="Aspect ratio">
+              <button type="button" class="seg-btn is-on" data-aspect="16:9">16:9</button>
+              <button type="button" class="seg-btn" data-aspect="9:16">9:16</button>
+              <button type="button" class="seg-btn" data-aspect="1:1">1:1</button>
+            </div>
+          </fieldset>
+          <fieldset class="setting">
+            <legend>Hold per photo — <output id="holdOut">2.2s</output></legend>
+            <input type="range" id="holdRange" min="1.2" max="4" step="0.1" value="2.2" />
+          </fieldset>
+          <fieldset class="setting">
+            <legend>Subject size — <output id="faceOut">26%</output></legend>
+            <input type="range" id="faceRange" min="16" max="38" step="1" value="26" />
+          </fieldset>
+          <fieldset class="setting setting-add">
+            <legend>Frames</legend>
+            <button class="btn btn-ghost" id="addBtn" type="button">+ Add photos</button>
+            <button class="btn btn-ghost btn-danger" id="clearBtn" type="button">Eject all</button>
+          </fieldset>
+        </div>
+      </section>
+
+      <!-- FILM STRIP -->
+      <section class="filmstrip-wrap" id="filmstripWrap" hidden aria-label="Photo order and labels">
+        <div class="filmstrip" id="filmstrip"></div>
+        <p class="strip-hint">Drag frames to reorder · type a year or caption under each — it appears in the film.</p>
+      </section>
+
+      <!-- EXPORT PROGRESS / RESULT -->
+      <dialog class="export-dialog" id="exportDialog">
+        <div class="ed-inner">
+          <div class="ed-reel" aria-hidden="true"><span></span></div>
+          <h2 id="edTitle">Developing film…</h2>
+          <div class="ed-bar"><div class="ed-fill" id="edFill"></div></div>
+          <p class="ed-status" id="edStatus">Encoding frame 0</p>
+          <div class="ed-actions" id="edActions" hidden>
+            <a class="btn btn-primary" id="downloadLink" download="timeline.mp4">Download film</a>
+            <button class="btn btn-ghost" id="edClose" type="button">Close</button>
+          </div>
+          <button class="btn btn-ghost" id="edCancel" type="button">Cancel</button>
+        </div>
+      </dialog>
+
+    </main>
+
+    <footer class="foot">
+      <span>Timeline · zero uploads, zero storage, zero tracking</span>
+      <span id="wipeNote">Everything you load self-erases from memory 15:00 after generation.</span>
+    </footer>
+  </div>
+
+  <input type="file" id="fileInput" accept="image/jpeg,image/png,image/webp" multiple hidden />
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>
