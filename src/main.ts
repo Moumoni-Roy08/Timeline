@@ -385,11 +385,13 @@ function toast(msg: string) {
 /* ── boot ─────────────────────────────────────────────────── */
 rebuild();
 drawBlack();
-void mountTulip($("tulipLanding"), 150).catch(() => {});
+const tulipLandingEl = $("tulipLanding");
+void mountTulip(tulipLandingEl, tulipLandingEl.clientWidth || 150).catch(() => {});
 let editorTulipMounted = false;
 new MutationObserver(() => {
   if (!deck.hidden && !editorTulipMounted) {
     editorTulipMounted = true;
-    void mountTulip($("tulipEditor"), 116).catch(() => {});
+    const tulipEditorEl = $("tulipEditor");
+    void mountTulip(tulipEditorEl, tulipEditorEl.clientWidth || 116).catch(() => {});
   }
 }).observe(deck, { attributes: true, attributeFilter: ["hidden"] });
