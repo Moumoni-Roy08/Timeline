@@ -81,17 +81,6 @@ body {
 .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; flex: none; }
 .dot-green { background: var(--sage); }
 .dot-red { background: var(--blush-hot); }
-.gh-star {
-  display: inline-flex; align-items: center; gap: 8px;
-  font-family: var(--sans); font-size: 0.78rem; font-weight: 700; letter-spacing: 0.03em;
-  color: oklch(0.35 0.05 80); background: var(--butter);
-  border: 1px solid oklch(0.74 0.1 88);
-  padding: 9px 15px; border-radius: 999px; text-decoration: none;
-  box-shadow: 0 3px 0 oklch(0.72 0.1 88);
-  transition: transform .15s cubic-bezier(.2,.9,.3,1), box-shadow .15s;
-}
-.gh-star:hover { transform: translateY(-2px); box-shadow: 0 5px 0 oklch(0.72 0.1 88); }
-.gh-star:active { transform: translateY(1px); box-shadow: 0 1px 0 oklch(0.72 0.1 88); }
 
 /* music toggle — plain button, renders the same on every device */
 .music-btn {
@@ -102,12 +91,13 @@ body {
   padding: 8px 14px; cursor: pointer;
   transition: background .15s, border-color .15s, color .15s;
 }
-.music-btn:hover { background: var(--paper-deep); }
 .music-btn:focus-visible { outline: 2px solid var(--sky); outline-offset: 2px; }
-/* playing = sage fill + speaker-on icon; muted = plain + speaker-off icon */
+/* playing = solid sage fill (stays green on hover/tap); muted = plain */
 .music-btn { background: var(--sage); border-color: oklch(0.55 0.07 145); color: oklch(0.99 0.005 145); }
+.music-btn:not(.is-muted):hover { background: oklch(0.56 0.075 145); } /* deeper green, never washes out */
 .music-btn .ic-off { display: none; }
 .music-btn.is-muted { background: var(--card); border-color: var(--line); color: var(--muted); }
+.music-btn.is-muted:hover { background: var(--paper-deep); }
 .music-btn.is-muted .ic-on { display: none; }
 .music-btn.is-muted .ic-off { display: inline; }
 .music-btn:not(.is-muted) .ic-on { animation: musicwave 1.6s ease-in-out infinite; }
@@ -222,7 +212,7 @@ body {
 }
 .btn:hover { background: var(--paper-deep); border-color: oklch(0.8 0.03 90); }
 .btn:active { transform: scale(0.97); }
-.btn:focus-visible, .seg-btn:focus-visible, .scrub:focus-visible, .gh-star:focus-visible, .frame-label:focus-visible {
+.btn:focus-visible, .seg-btn:focus-visible, .scrub:focus-visible, .frame-label:focus-visible {
   outline: 2px solid var(--sky); outline-offset: 2px;
 }
 .btn-primary {
@@ -397,6 +387,18 @@ input[type="range"] { width: 100%; accent-color: var(--sage); margin-top: 8px; }
   background: oklch(0.985 0.01 95 / 0.75); backdrop-filter: blur(3px);
   padding: 5px 10px; border-radius: 999px;
 }
+.foot-gh {
+  display: inline-flex; align-items: center; gap: 7px;
+  background: var(--butter); border: 1px solid oklch(0.74 0.1 88);
+  color: oklch(0.35 0.05 80); text-decoration: none;
+  padding: 5px 12px; border-radius: 999px;
+  box-shadow: 0 2px 0 oklch(0.72 0.1 88);
+  transition: transform .15s cubic-bezier(.2,.9,.3,1), box-shadow .15s;
+}
+.foot-gh b { font-weight: 700; }
+.foot-gh:hover { transform: translateY(-1px); box-shadow: 0 3px 0 oklch(0.72 0.1 88); }
+.foot-gh:active { transform: translateY(1px); box-shadow: 0 1px 0 oklch(0.72 0.1 88); }
+.foot-gh:focus-visible { outline: 2px solid var(--sky); outline-offset: 2px; }
 
 /* ---------- toast ---------- */
 .toast {
