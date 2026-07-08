@@ -107,6 +107,8 @@ export function startMusic(): boolean {
     return !muted && ctx.state === "running";
   }
   ctx = new AudioContext();
+  // iOS/MIUI can hand back a suspended context even inside a gesture.
+  if (ctx.state === "suspended") void ctx.resume();
   master = ctx.createGain();
   master.gain.value = muted ? 0 : 0.7;
   master.connect(ctx.destination);

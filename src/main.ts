@@ -4,6 +4,7 @@ import { TimelineRenderer, type Photo } from "./renderer";
 import { exportFilm, supportsMp4, type ExportHandle } from "./exporter";
 import { ASPECTS, GITHUB_REPO_URL, MAX_PHOTOS, MIN_PHOTOS, PURGE_MS, FPS } from "./config";
 import { mountTulip } from "./tulip3d";
+import { startMusic, toggleMute } from "./music";
 
 /* ── element refs ─────────────────────────────────────────── */
 const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
@@ -47,7 +48,8 @@ const downloadLink = $<HTMLAnchorElement>("downloadLink");
 
 /* ── background music (generated on-device, autoplays on first gesture) ── */
 const musicBtn = $<HTMLButtonElement>("musicBtn");
-let musicWanted = true; // default ON; flips when the user mutes
+let musicWanted = true;   // default ON; flips only when the user mutes
+let musicArmed = false;   // has the AudioContext been created yet?
 
 function reflectMusic(on: boolean) {
   musicBtn.classList.toggle("is-muted", !on);
@@ -57,32 +59,26 @@ function reflectMusic(on: boolean) {
 }
 reflectMusic(true);
 
-// Browsers block audio until a user gesture. Try immediately (works if the
-// visitor already interacted, e.g. reload), otherwise start on the first
-// tap / key / scroll anywhere on the page.
-async function armAutoplay() {
-  const { startMusic } = await import("./music");
-  const kick = () => {
-    if (!musicWanted) return;
-    const on = startMusic();
-    reflectMusic(on);
-  };
-  kick();
-  const once = () => { kick(); cleanup(); };
-  const cleanup = () => {
-    ["pointerdown", "keydown", "touchstart", "wheel"].forEach((ev) =>
-      removeEventListener(ev, once)
-    );
-  };
-  ["pointerdown", "keydown", "touchstart", "wheel"].forEach((ev) =>
-    addEventListener(ev, once, { once: false, passive: true })
-  );
+// Browsers block Web Audio until the user interacts with the page — and the
+// AudioContext must be *created inside* that gesture (creating it earlier and
+// resuming later stays blocked on iOS/MIUI). So we do nothing on load and
+// spin everything up on the first pointer/touch/key/scroll anywhere.
+const GESTURES = ["pointerdown", "touchstart", "keydown", "wheel", "scroll"];
+function firstGesture() {
+  // Must run synchronously — creating the AudioContext inside the gesture
+  // is what unlocks audio on iOS/MIUI; an await here would forfeit that.
+  if (musicArmed) return;
+  musicArmed = true;
+  GESTURES.forEach((ev) => removeEventListener(ev, firstGesture));
+  if (musicWanted) reflectMusic(startMusic());
 }
-void armAutoplay();
+GESTURES.forEach((ev) =>
+  addEventListener(ev, firstGesture, { passive: true })
+);
 
-musicBtn.addEventListener("click", async (e) => {
-  e.stopPropagation();
-  const { toggleMute } = await import("./music");
+musicBtn.addEventListener("click", () => {
+  // If this click is the very first gesture, firstGesture() also fires and
+  // starts the context; toggleMute then applies the user's real intent.
   const on = toggleMute();
   musicWanted = on;
   reflectMusic(on);
