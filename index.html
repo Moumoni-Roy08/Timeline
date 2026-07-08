@@ -20,6 +20,10 @@
         <span class="brand-tag">little timeline films ✿</span>
       </div>
       <div class="topbar-right">
+        <button class="music-btn" id="musicBtn" type="button" aria-pressed="false" title="Background music">
+          <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path fill="currentColor" d="M12.5 1.5 6 2.9v7.2a2.4 2.4 0 1 0 1.2 2.08V6.1l4.1-.9v3.4a2.4 2.4 0 1 0 1.2 2.08V1.5h.0Z"/></svg>
+          <span class="music-label">Music</span>
+        </button>
         <span class="privacy-chip" id="privacyChip" title="Photos never leave this device">
           <span class="dot dot-green"></span> On-device · nothing uploaded
         </span>
@@ -54,18 +58,6 @@
                 <span class="shutter-ico" aria-hidden="true"></span> Select photos
               </button>
               <p class="dz-fine">JPG · PNG · WEBP — processed entirely in your browser.<br/>Session self-destructs 15 minutes after your film is generated.</p>
-
-              <div class="music-widget" id="musicWidget">
-                <iframe
-                  id="spotifyEmbed"
-                  width="100%" height="152" frameborder="0"
-                  allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-                  loading="lazy" title="Background music"></iframe>
-                <div class="music-picker">
-                  <input type="text" id="spotifyLinkInput" placeholder="Paste a Spotify track/playlist link…" />
-                  <button class="btn btn-ghost" id="spotifyLoadBtn" type="button">Load</button>
-                </div>
-              </div>
             </div>
           </div>
 
