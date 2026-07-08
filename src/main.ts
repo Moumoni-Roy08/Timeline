@@ -57,7 +57,10 @@ function reflectMusic(on: boolean) {
   musicBtn.setAttribute("aria-label", on ? "Mute music" : "Play music");
   musicBtn.title = on ? "Mute music" : "Play music";
 }
-reflectMusic(true);
+// Nothing is audible until the first gesture starts the context, so the
+// button shows the muted icon on load — it flips to "playing" the instant
+// sound actually begins, never claiming audio that isn't there.
+reflectMusic(false);
 
 // Browsers block Web Audio until the user interacts with the page — and the
 // AudioContext must be *created inside* that gesture (creating it earlier and
