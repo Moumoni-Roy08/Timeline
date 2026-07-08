@@ -29,6 +29,12 @@ interface Placed {
   tEnd: number;   // fully-visible end (fade to next begins here)
 }
 
+/** The fixed anchor every subject is pinned to: horizontal center,
+ *  eyes slightly above middle. Shared by layout math and drawing —
+ *  they must agree or faces settle off-anchor. */
+const ANCHOR_X = 0.5;
+const ANCHOR_Y = 0.42;
+
 export class TimelineRenderer {
   private placed: Placed[] = [];
   private grain: HTMLCanvasElement;
@@ -48,10 +54,45 @@ export class TimelineRenderer {
       const { img, lock } = photo;
       const iw = img.naturalWidth, ih = img.naturalHeight;
       const cover = Math.max(W / iw, H / ih);
+      const contain = Math.min(W / iw, H / ih);
       // Scale so the head height equals faceFrac of the frame…
       let scale = (faceFrac * H) / (lock.fh * ih);
-      // …but never so extreme that the shot falls apart.
-      scale = Math.min(Math.max(scale, cover * 0.55), cover * 2.6);
+      // …bounded: never below a full "contain" fit (photo floating tiny
+      // in blur = reads as black bars) nor past a destructive crop.
+      // No face to pin → cover-fill the frame like any scenery shot.
+      if (lock.locked) {
+        scale = Math.min(Math.max(scale, contain), cover * 2.6);
+        // An off-center face reaches the anchor only when the photo has
+        // slack to slide without opening a gap. These are the exact
+        // scales at which each axis gains that slack (the y split is
+        // asymmetric because the anchor sits at 0.42H, not center)…
+        const needX = (W / iw) * Math.max(ANCHOR_X / lock.fx, (1 - ANCHOR_X) / (1 - lock.fx));
+        const needY = (H / ih) * Math.max(ANCHOR_Y / lock.fy, (1 - ANCHOR_Y) / (1 - lock.fy));
+        // …zoom toward them, capped at 1.35× so heads stay near the
+        // target size. A partial boost only helps once the photo covers
+        // the axis (below coverage it just enlarges a pillarboxed photo
+        // and pushes the face away), so gate each axis on coverage.
+        const budget = scale * 1.35;
+        for (const [need, dim, frame] of [[needX, iw, W], [needY, ih, H]] as const) {
+          const boosted = Math.min(need, budget);
+          if (boosted > scale && dim * boosted >= frame) scale = boosted;
+        }
+        scale = Math.min(scale, cover * 2.6);
+        // Group shots: whatever head size wants, never zoom so far that
+        // someone's face leaves the anchored viewport.
+        if (lock.spread) {
+          const { x0, y0, x1, y1 } = lock.spread;
+          const caps = [
+            (ANCHOR_X * W) / ((lock.fx - x0) * iw),
+            ((1 - ANCHOR_X) * W) / ((x1 - lock.fx) * iw),
+            (ANCHOR_Y * H) / ((lock.fy - y0) * ih),
+            ((1 - ANCHOR_Y) * H) / ((y1 - lock.fy) * ih),
+          ].filter((c) => Number.isFinite(c) && c > 0);
+          if (caps.length) scale = Math.max(contain, Math.min(scale, ...caps));
+        }
+      } else {
+        scale = cover;
+      }
       const tStart = i * (hold + fade);
       return {
         photo,
@@ -119,12 +160,14 @@ export class TimelineRenderer {
     const { width: W, height: H } = this.opts;
     const { img, lock } = p.photo;
 
-    // Anchor: horizontal center, eyes slightly above middle — identical
-    // for every photo, which is what makes the subject feel bolted in place.
-    const ax = W * 0.5;
-    const ay = H * 0.42;
+    // Anchor: identical for every photo, which is what makes the
+    // subject feel bolted in place.
+    const ax = W * ANCHOR_X;
+    const ay = H * ANCHOR_Y;
 
-    // Slow push-in, scaling ABOUT the anchor so the face never drifts.
+    // Slow push-in, scaling about the settled pin point (below) so the
+    // face never drifts even when full-bleed limits how close to the
+    // anchor it could get.
     const zoom = 1 + 0.06 * easeInOut(clamp01(life));
     // Backdrop drifts a touch faster => parallax: world moves, person doesn't.
     const bgZoom = 1 + 0.11 * easeInOut(clamp01(life));
@@ -137,14 +180,25 @@ export class TimelineRenderer {
     ctx.drawImage(p.backdrop, -W / 2, -H / 2, W, H);
     ctx.restore();
 
-    // subject layer
-    const s = p.scale * zoom;
+    // subject layer — settle placement at base scale: pin the face to
+    // the anchor, then per axis: if the photo covers the frame, slide
+    // only as far as full bleed allows (no gaps); if it can't (aspect
+    // mismatch), center that axis over the blurred backdrop.
     const iw = img.naturalWidth, ih = img.naturalHeight;
-    const dx = ax - lock.fx * iw * s;
-    const dy = ay - lock.fy * ih * s;
+    const w0 = iw * p.scale, h0 = ih * p.scale;
+    let px = ax - lock.fx * w0;
+    let py = ay - lock.fy * h0;
+    px = w0 >= W ? Math.min(0, Math.max(W - w0, px)) : (W - w0) / 2;
+    py = h0 >= H ? Math.min(0, Math.max(H - h0, py)) : (H - h0) / 2;
+    // Zoom about the settled pin point — wherever the face landed, it
+    // stays exactly there for the photo's whole life. (Re-clamping at
+    // the zoomed size instead would slide the subject as zoom grows.)
+    const pinX = px + lock.fx * w0;
+    const pinY = py + lock.fy * h0;
+    const dw = w0 * zoom, dh = h0 * zoom;
+    const dx = pinX - lock.fx * dw;
+    const dy = pinY - lock.fy * dh;
     ctx.save();
-    // soft edge so the sharp layer melts into the blurred backdrop
-    const dw = iw * s, dh = ih * s;
     ctx.drawImage(img, dx, dy, dw, dh);
     ctx.restore();
   }
@@ -252,7 +306,7 @@ function makeBackdrop(img: HTMLImageElement, W: number, H: number): HTMLCanvasEl
   const iw = img.naturalWidth, ih = img.naturalHeight;
   const cover = Math.max(W / iw, H / ih) * 1.12; // overscan hides drift edges
   const dw = iw * cover, dh = ih * cover;
-  ctx.filter = "blur(28px) brightness(0.55) saturate(1.1)";
+  ctx.filter = "blur(28px) brightness(0.7) saturate(1.1)";
   ctx.drawImage(img, (W - dw) / 2, (H - dh) / 2, dw, dh);
   ctx.filter = "none";
   return c;

@@ -9,9 +9,9 @@ Turn **10–20 photos into a timeline film** where the person stays bolted to th
 
 ## How the subject stays centered
 
-1. Each photo runs through the tiny face detector; the largest face wins.
+1. Each photo runs through the tiny face detector; faces are scored by **size × centrality**. A clearly dominant face becomes the subject — otherwise it's treated as a group shot and the group's weighted centroid is anchored (without ever zooming a face out of frame).
 2. The head is normalized to a fixed **anchor point** (50% x, 42% y) and a fixed **head height** (adjustable 16–38% of frame).
-3. Every photo is scaled and translated so its face lands exactly on that anchor — a face on the far left of one photo and far right of the next both render at dead center.
+3. Every photo is scaled and translated so its face lands on that anchor — as close as full-bleed allows: the photo never opens a black gap to reach it. Mismatched aspects get centered over a blurred fill instead.
 4. A blurred, darkened copy of the photo fills the frame behind the subject, and drifts/zooms slightly faster than the subject layer — parallax that sells "only the background is changing."
 5. Photos with no detectable face (pets, landscapes) fall back to a rule-of-thirds center and get a `NO FACE · CENTERED` badge in the film strip.
 
