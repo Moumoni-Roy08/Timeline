@@ -45,13 +45,47 @@ const downloadLink = $<HTMLAnchorElement>("downloadLink");
 
 ($("githubStar") as HTMLAnchorElement).href = GITHUB_REPO_URL;
 
-/* ── background music (generated on-device, ~16s loop) ───────── */
+/* ── background music (generated on-device, autoplays on first gesture) ── */
 const musicBtn = $<HTMLButtonElement>("musicBtn");
-musicBtn.addEventListener("click", async () => {
-  const { toggleMusic } = await import("./music");
-  const on = toggleMusic();
-  musicBtn.classList.toggle("is-playing", on);
+let musicWanted = true; // default ON; flips when the user mutes
+
+function reflectMusic(on: boolean) {
+  musicBtn.classList.toggle("is-muted", !on);
   musicBtn.setAttribute("aria-pressed", String(on));
+  musicBtn.setAttribute("aria-label", on ? "Mute music" : "Play music");
+  musicBtn.title = on ? "Mute music" : "Play music";
+}
+reflectMusic(true);
+
+// Browsers block audio until a user gesture. Try immediately (works if the
+// visitor already interacted, e.g. reload), otherwise start on the first
+// tap / key / scroll anywhere on the page.
+async function armAutoplay() {
+  const { startMusic } = await import("./music");
+  const kick = () => {
+    if (!musicWanted) return;
+    const on = startMusic();
+    reflectMusic(on);
+  };
+  kick();
+  const once = () => { kick(); cleanup(); };
+  const cleanup = () => {
+    ["pointerdown", "keydown", "touchstart", "wheel"].forEach((ev) =>
+      removeEventListener(ev, once)
+    );
+  };
+  ["pointerdown", "keydown", "touchstart", "wheel"].forEach((ev) =>
+    addEventListener(ev, once, { once: false, passive: true })
+  );
+}
+void armAutoplay();
+
+musicBtn.addEventListener("click", async (e) => {
+  e.stopPropagation();
+  const { toggleMute } = await import("./music");
+  const on = toggleMute();
+  musicWanted = on;
+  reflectMusic(on);
 });
 
 /* ── state ────────────────────────────────────────────────── */

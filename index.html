@@ -20,8 +20,15 @@
         <span class="brand-tag">little timeline films ✿</span>
       </div>
       <div class="topbar-right">
-        <button class="music-btn" id="musicBtn" type="button" aria-pressed="false" title="Background music">
-          <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path fill="currentColor" d="M12.5 1.5 6 2.9v7.2a2.4 2.4 0 1 0 1.2 2.08V6.1l4.1-.9v3.4a2.4 2.4 0 1 0 1.2 2.08V1.5h.0Z"/></svg>
+        <button class="music-btn" id="musicBtn" type="button" aria-pressed="true" aria-label="Mute music" title="Mute music">
+          <svg class="ic-on" viewBox="0 0 16 16" width="15" height="15" aria-hidden="true">
+            <path fill="currentColor" d="M8.5 1.6 4.3 5H2a1 1 0 0 0-1 1v4a1 1 0 0 0 1 1h2.3l4.2 3.4a.6.6 0 0 0 1-.47V2.07a.6.6 0 0 0-1-.47Z"/>
+            <path fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" d="M11.3 5.4a3.4 3.4 0 0 1 0 5.2M13.2 3.6a6 6 0 0 1 0 8.8"/>
+          </svg>
+          <svg class="ic-off" viewBox="0 0 16 16" width="15" height="15" aria-hidden="true">
+            <path fill="currentColor" d="M8.5 1.6 4.3 5H2a1 1 0 0 0-1 1v4a1 1 0 0 0 1 1h2.3l4.2 3.4a.6.6 0 0 0 1-.47V2.07a.6.6 0 0 0-1-.47Z"/>
+            <path fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" d="M11 6l3.4 4M14.4 6 11 10"/>
+          </svg>
           <span class="music-label">Music</span>
         </button>
         <span class="privacy-chip" id="privacyChip" title="Photos never leave this device">

@@ -104,12 +104,14 @@ body {
 }
 .music-btn:hover { background: var(--paper-deep); }
 .music-btn:focus-visible { outline: 2px solid var(--sky); outline-offset: 2px; }
-.music-btn.is-playing {
-  background: var(--sage); border-color: oklch(0.55 0.07 145);
-  color: oklch(0.99 0.005 145);
-}
-.music-btn.is-playing svg { animation: musicbob 1.2s ease-in-out infinite; }
-@keyframes musicbob { 50% { transform: translateY(-1.5px) rotate(-6deg); } }
+/* playing = sage fill + speaker-on icon; muted = plain + speaker-off icon */
+.music-btn { background: var(--sage); border-color: oklch(0.55 0.07 145); color: oklch(0.99 0.005 145); }
+.music-btn .ic-off { display: none; }
+.music-btn.is-muted { background: var(--card); border-color: var(--line); color: var(--muted); }
+.music-btn.is-muted .ic-on { display: none; }
+.music-btn.is-muted .ic-off { display: inline; }
+.music-btn:not(.is-muted) .ic-on { animation: musicwave 1.6s ease-in-out infinite; }
+@keyframes musicwave { 50% { transform: scale(1.08); } }
 
 /* ---------- viewfinder ---------- */
 .viewfinder {
